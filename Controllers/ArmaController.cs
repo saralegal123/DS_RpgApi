@@ -15,7 +15,7 @@ namespace RpgApi.Controllers
 
     public class ArmasController : ControllerBase
     {
-        private readonly DataContext _context;
+        /*private readonly DataContext _context;
 
         public ArmasController(DataContext context)
         {
@@ -60,6 +60,6 @@ namespace RpgApi.Controllers
             _context.SaveChanges();
 
             return NoContent();
-        }
+        }*/
     }
 }

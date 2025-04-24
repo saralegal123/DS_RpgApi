@@ -12,7 +12,9 @@ namespace RpgApi.Models
         public string Nome { get; set; } = string.Empty;      
         public int Dano {get;set;}
         public ArmaEnum Classe { get; set; }
-
+        public Personagem? Personagem {get; set;} = null!; //null! --> ignora os warnings
+        public int? PersonagemId {get; set;}
+        
         internal static void Add(Arma novaArma)
         {
             throw new NotImplementedException();
