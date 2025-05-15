@@ -11,6 +11,6 @@ namespace RpgApi.Models
         public string Nome { get; set; } = string.Empty;
         public int Dano { get; set;}
 
-        public List<PersonagemHabilidade> PersonagemHabilidade { get; set; } = [];
+        public List<PersonagemHabilidade> PersonagemHabilidades { get; set; } = [];
     }
 }

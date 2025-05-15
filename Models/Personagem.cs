@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using RpgApi.Models.Enuns;
 using System.Text.Json.Serialization;
 
+
 namespace RpgApi.Models
 {
     public class Personagem
@@ -28,12 +29,8 @@ namespace RpgApi.Models
         public int Disputas {get; set;}
         public int Vitorias {get; set;}
         public int Derrotas {get; set;}
+               
         
-        internal static object? FirstOrDefault(Func<object, bool> value)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public List<PersonagemHabilidade> PersonagemHabilidade { get; set; } = [];
+        public List<PersonagemHabilidade> PersonagemHabilidades { get; set; } = [];
     }
 }

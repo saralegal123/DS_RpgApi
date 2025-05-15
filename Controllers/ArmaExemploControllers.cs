@@ -18,13 +18,13 @@ namespace RpgApi.Controllers
     {
          private static List<Arma> armas = new List<Arma>()
         {
-            new Arma() { Id = 1, Nome = "Espada", Dano=17, Classe=ArmaEnum.Espada},
-            new Arma() { Id = 2, Nome = "Adaga", Dano=15, Classe=ArmaEnum.Adaga},
-            new Arma() { Id = 3, Nome = "Besta", Dano=18, Classe=ArmaEnum.Besta },
-            new Arma() { Id = 4, Nome = "Mangual", Dano=18,  Classe=ArmaEnum.Mangual },
-            new Arma() { Id = 5, Nome = "Cajado", Dano=20, Classe=ArmaEnum.Cajado },
-            new Arma() { Id = 6, Nome = "Pistola", Dano=21,  Classe=ArmaEnum.Pistola },
-            new Arma() { Id = 7, Nome = "Femur", Dano=25,  Classe=ArmaEnum.Femur }
+            new Arma() { Id = 1, Nome = "Espada", Dano=17, /*Classe=ArmaEnum.Espada,*/ PersonagemId = 1},
+            new Arma() { Id = 2, Nome = "Adaga", Dano=15, /*Classe=ArmaEnum.Adaga,*/ PersonagemId = 2},
+            new Arma() { Id = 3, Nome = "Besta", Dano=18, /*Classe=ArmaEnum.Besta ,*/ PersonagemId = 3},
+            new Arma() { Id = 4, Nome = "Mangual", Dano=18,  /*Classe=ArmaEnum.Mangual,*/ PersonagemId = 4},
+            new Arma() { Id = 5, Nome = "Cajado", Dano=20, /*Classe=ArmaEnum.Cajado,*/ PersonagemId = 5},
+            new Arma() { Id = 6, Nome = "Pistola", Dano=21,  /*Classe=ArmaEnum.Pistola,*/ PersonagemId = 6},
+            new Arma() { Id = 7, Nome = "Fêmur", Dano=25,  /*Classe=ArmaEnum.Femur,*/ PersonagemId = 7}           
         };
 
         [HttpGet("Get")]
@@ -45,12 +45,12 @@ namespace RpgApi.Controllers
             return Ok(armas.FirstOrDefault(ar => ar.Id == id));
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public IActionResult AddArma(Arma novaArma)
         {
             Arma.Add(novaArma);
             return Ok(armas);
-        }
+        }*/
 
         [HttpGet("GetOrdenado")]
          public IActionResult GetOrdem()

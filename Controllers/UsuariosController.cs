@@ -4,7 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RpgApi.Models;
+using RpgApi.Data;  
+using RpgApi.Models.Enuns;
+using RpgApi.Utils;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace RpgApi.Controllers
 {
@@ -64,7 +70,7 @@ namespace RpgApi.Controllers
                         throw new System.Exception("Usuário  não encontrado.");
                     }
                     else if (!Criptografia
-                        .VerificarPasswordHash(credenciais.PasswordHash, usuario,PasswordHash, usuario.PasswordSalt))
+                        .VerificarPasswordHash(usuario.PasswordString, usuario.PasswordHash, usuario.PasswordSalt))
                     {
                         throw new System.Exception("Senha incorreta.");
                     }
@@ -96,7 +102,7 @@ namespace RpgApi.Controllers
                 await _context.TB_ARMAS.AddAsync(novaArma);
                 await _context.SaveChangesAsync();
 
-                return OK(novaArma.Id);    
+                return Ok(novaArma.Id);    
             }
             catch (System.Exception ex)
             {
@@ -104,15 +110,6 @@ namespace RpgApi.Controllers
             }
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View("Error!");
-        }
+        
     }
 }

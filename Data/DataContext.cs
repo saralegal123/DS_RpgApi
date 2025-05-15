@@ -26,6 +26,7 @@ namespace RpgApi.Data
         public DbSet<Usuario> TB_USUARIOS { get; set; }
         public DbSet<Habilidade> TB_HABILIDADES { get; set; }
         public DbSet<PersonagemHabilidade> TB_PERSONAGENS_HABILIDADES { get; set; }
+        public DbSet<Disputa> TB_DISPUTAS { get; set;}
 
         //oveerride --> sobreescrevendo algo que ja existe
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -35,6 +36,8 @@ namespace RpgApi.Data
            modelBuilder.Entity<Usuario>().ToTable("TB_USUARIOS");
            modelBuilder.Entity<Habilidade>().ToTable("TB_HABILIDADES");
            modelBuilder.Entity<PersonagemHabilidade>().ToTable("TB_PERSONAGENS_HABILIDADES");
+           modelBuilder.Entity<Disputa>().ToTable("TB_DISPUTAS");
+
 
            modelBuilder.Entity<Usuario>()
             .HasMany(e => e.Personagens)
@@ -63,13 +66,13 @@ namespace RpgApi.Data
             
             modelBuilder.Entity<Arma>().HasData
            (
-            new Arma() { Id = 1, Nome = "Espada", Dano=17, Classe=ArmaEnum.Espada, PersonagemId = 1},
-            new Arma() { Id = 2, Nome = "Adaga", Dano=15, Classe=ArmaEnum.Adaga, PersonagemId = 2},
-            new Arma() { Id = 3, Nome = "Besta", Dano=18, Classe=ArmaEnum.Besta , PersonagemId = 3},
-            new Arma() { Id = 4, Nome = "Mangual", Dano=18,  Classe=ArmaEnum.Mangual, PersonagemId = 4},
-            new Arma() { Id = 5, Nome = "Cajado", Dano=20, Classe=ArmaEnum.Cajado, PersonagemId = 5},
-            new Arma() { Id = 6, Nome = "Pistola", Dano=21,  Classe=ArmaEnum.Pistola, PersonagemId = 6},
-            new Arma() { Id = 7, Nome = "Fêmur", Dano=25,  Classe=ArmaEnum.Femur, PersonagemId = 7}
+            new Arma() { Id = 1, Nome = "Espada", Dano=17, /*Classe=ArmaEnum.Espada,*/ PersonagemId = 1},
+            new Arma() { Id = 2, Nome = "Adaga", Dano=15, /*Classe=ArmaEnum.Adaga,*/ PersonagemId = 2},
+            new Arma() { Id = 3, Nome = "Besta", Dano=18, /*Classe=ArmaEnum.Besta ,*/ PersonagemId = 3},
+            new Arma() { Id = 4, Nome = "Mangual", Dano=18,  /*Classe=ArmaEnum.Mangual,*/ PersonagemId = 4},
+            new Arma() { Id = 5, Nome = "Cajado", Dano=20, /*Classe=ArmaEnum.Cajado,*/ PersonagemId = 5},
+            new Arma() { Id = 6, Nome = "Pistola", Dano=21,  /*Classe=ArmaEnum.Pistola,*/ PersonagemId = 6},
+            new Arma() { Id = 7, Nome = "Fêmur", Dano=25,  /*Classe=ArmaEnum.Femur,*/ PersonagemId = 7}
            );
 
             //Habilidades de Personagens 
@@ -114,6 +117,15 @@ namespace RpgApi.Data
 
            //define qeu se o perfil nao form informado, o valor padrao será jogador
            modelBuilder.Entity<Usuario>().Property(u => u.Perfil).HasDefaultValue("Jogador");
+
+            modelBuilder.Entity<Disputa>().HasKey(d => d.Id);//Indicação da chave primária da entidade.
+            //Abaixo fica o mapeamento do nome das colunas da tabela para as propriedades da classe.
+            modelBuilder.Entity<Disputa>().Property(d => d.DataDisputa).HasColumnName("Dt_Disputa");
+            modelBuilder.Entity<Disputa>().Property(d => d.AtacanteId).HasColumnName("AtacanteId");
+            modelBuilder.Entity<Disputa>().Property(d => d.OponenteId).HasColumnName("OponenteId");
+            modelBuilder.Entity<Disputa>().Property(d => d.Narracao).HasColumnName("Tx_Narracao");            
+
+            //modelBuilder.Entity<Personagem>().Navigation(p=>p.Arma).AutoInclude();
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -127,6 +139,7 @@ namespace RpgApi.Data
             optionsBuilder.ConfigureWarnings(warnings => 
                 warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
+       
        
        
     }

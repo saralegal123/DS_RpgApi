@@ -3,63 +3,110 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Client;
+using Microsoft.EntityFrameworkCore;
 using RpgApi.Data;
 using RpgApi.Models;
 
-//Sara Marcely Andrade de Oliveira e Isabelle
 namespace RpgApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-
     public class ArmasController : ControllerBase
     {
-        /*private readonly DataContext _context;
+        private readonly DataContext _context;
 
         public ArmasController(DataContext context)
         {
             _context = context;
         }
 
-        [HttpGet]
-        public ActionResult<List<Arma>> Get()
+         [HttpGet("{id}")] //Buscar pelo id
+        public async Task<IActionResult> GetSingle(int id)
         {
-            return _context.Armas.ToList();
+            try
+            {
+                Arma a = await _context.TB_ARMAS.FirstOrDefaultAsync(aBusca => aBusca.Id == id);
+                //using Microsoft.EntityFrameworkCore;
+
+                return Ok(a);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message + " - " + ex.InnerException);
+            }
         }
-    
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                //using System.Collections.Generic;
+                List<Arma> lista = await _context.TB_ARMAS.ToListAsync();
+                return Ok(lista);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message + " - " + ex.InnerException);
+            }
+        }
+
         [HttpPost]
-        public IActionResult Post([FromBody] Arma arma)
+        public async Task<IActionResult> Add(Arma novaArma)
         {
-            _context.Armas.Add(arma);
-            _context.SaveChanges();
-            return CreatedAtAction(nameof(Get), new {id = arma.Id}, arma);
+            try
+            {               
+                if(novaArma.Dano == 0)
+                  throw new Exception("O Dano da arma não pode ser 0");
+
+                Personagem? p = await _context.TB_PERSONAGENS.FirstOrDefaultAsync(p => p.Id == novaArma.PersonagemId);
+                
+                if(p == null)
+                    throw new Exception("Não existe personagem com o Id informado.");
+
+                await _context.TB_ARMAS.AddAsync(novaArma);
+                await _context.SaveChangesAsync();
+
+                return Ok(novaArma.Id);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message + " - " + ex.InnerException);
+            }
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Arma novaArma)
+        [HttpPut]
+        public async Task<IActionResult> Update(Arma novaArma)
         {
-            var  arma = _context.Armas.Find(id);
-            if (arma == null) return NotFound();
+            try
+            {
+                _context.TB_ARMAS.Update(novaArma);
+                int linhaAfetadas = await _context.SaveChangesAsync();
 
-
-            arma.Nome = novaArma.Nome;
-            arma.Dano = novaArma.Dano;
-            _context.SaveChanges();
-
-            return Ok(arma);
+                return Ok(linhaAfetadas);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message + " - " + ex.InnerException);
+            }
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var arma =  _context.Armas.Find();
-            if (arma == null) return NotFound();
+            try
+            {
+                Arma aRemover = await _context.TB_ARMAS.FirstOrDefaultAsync(p => p.Id == id);
 
-            _context.Armas.Remove(arma);
-            _context.SaveChanges();
+                _context.TB_ARMAS.Remove(aRemover);
+                int linhaAfetadas = await _context.SaveChangesAsync();
 
-            return NoContent();
-        }*/
+                return Ok(linhaAfetadas);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message + " - " + ex.InnerException);
+            }
+        }
     }
 }

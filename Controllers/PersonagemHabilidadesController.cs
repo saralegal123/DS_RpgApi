@@ -5,6 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RpgApi.Models;  
+using RpgApi.Data;  
+using Microsoft.EntityFrameworkCore;
 
 namespace RpgApi.Controllers
 {
@@ -33,7 +36,7 @@ namespace RpgApi.Controllers
                     throw new System.Exception("Personagem não encontrado para o Id informado.");
 
                 Habilidade habilidade = await _context.TB_HABILIDADES
-                    .FirstOrDefaultAsync(h => h.Id == novoPersonagemHabilidade.Habilidade);
+                    .FirstOrDefaultAsync(h => h.Id == novoPersonagemHabilidade.HabilidadeId);
 
                 if(habilidade == null)
                     throw new System.Exception("Habilidade não encontrada.");
