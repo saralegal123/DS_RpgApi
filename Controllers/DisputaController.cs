@@ -259,15 +259,70 @@ namespace RpgApi.Controllers
                 }
                 catch (System.Exception ex)
                 { 
-                    return BadRequest(ex.Message); }
+                    return BadRequest(ex.Message); 
+                }
             }
         
+            [HttpGet("Listar")]
+            public async Task<IActionResult> ListarAsync()
+            {
+                try
+                {
+                    List<Disputa> disputas = await _context.TB_DISPUTAS.ToListAsync();
+
+                    return Ok(disputas);
+                }
+                catch (System.Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+
+            }
         
-        
-        
-        
-        
-        
+            [HttpPut("RestaurarPontosVida")]
+            public async Task<IActionResult> RestaurarPontosVidaAsync(Personagem p)
+            {
+                try
+                {
+                    int linhasAfetadas = 0;
+                    Personagem? pEncontrado = await _context.Personagens.FirstOrDefaultAsync(pBusca => pBusca.Id == p.Id);
+                    pEncontrado.PontosVida = 100;
+
+                    bool atualizou = await TryUpdateModelAsync<Personagem>(pEncontrado, "p",
+                        pAtualizar => pAtualizar.PontosVida);
+                    // EF vai detectar e atualizar apenas as colunas que foram alteradas.
+                    if (atualizou)
+                        linhasAfetadas = await _context.SaveChangesAsync();
+
+                    return Ok(linhasAfetadas);
+                }
+                catch (System.Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            
+            //Método para alteração da foto
+            [HttpPut("AtualizarFoto")]
+            public async Task<IActionResult> AtualizarFotoAsync(Personagem p)
+            {
+                try
+                {
+                    Personagem personagem = await _context.TB_PERSONAGENS
+                        .FirstOrDefaultAsync(x => x.Id == p.Id);
+                    personagem.FotoPersonagem = p.FotoPersonagem;
+                    var attach = _context.Attach(personagem);
+                    attach.Property(x => x.Id).IsModified = false;
+                    attach.Property(x => x.FotoPersonagem).IsModified = true;
+                    int linhasAfetadas = await _context.SaveChangesAsync();
+                    return Ok(linhasAfetadas);
+                }
+                catch (System.Exception ex)
+                { 
+                    return BadRequest(ex.Message);
+                }
+            }
+        //8
         
         
     }
