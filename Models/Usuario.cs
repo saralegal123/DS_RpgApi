@@ -17,10 +17,14 @@ namespace RpgApi.Models.Enuns
         public double? Longitude {get; set;} 
         public DateTime? DataAcesso {get; set;} 
         
-        public List<Personagem> Personagens { get; set; }
+        public List<Personagem> Personagens { get; set; } = new List<Personagem>();
 
         [NotMapped]
         public string PasswordString {get; set;}  = string.Empty;
+        
+        [NotMapped]
+        public string Token {get; set;} = string.Empty;
+                
         public string? Perfil {get; set;} 
         public string? Email {get; set;} 
     }

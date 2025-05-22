@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using RpgApi.Data;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +22,19 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
 options.SerializerSettings.ReferenceLoopHandling =
 Newtonsoft.Json.ReferenceLoopHandling.Ignore
 );
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)  
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                .GetBytes(builder.Configuration.GetSection("ConfiguracaoToken:Chave").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 
 var app = builder.Build();
 
@@ -48,6 +65,8 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();
 

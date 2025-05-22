@@ -118,133 +118,126 @@ namespace RpgApi.Controllers
             {
                 return BadRequest(ex.Message + " - " + ex.InnerException);
             }
-        }        
-
-        [HttpGet("PersonagemRandom")]
-        public async Task<IActionResult> Sorteio()
-        {
-            List<Personagem> personagens = await _context.TB_PERSONAGENS.ToListAsync();
-
-            //Sorteio com numero da quantidade de personagens
-            int sorteio = new Random().Next(personagens.Count);
-
-            //busca na lista pelo indice sorteado (não é o id)
-            Personagem p = personagens [sorteio];
-
-            string msg = string.Format("N° Sorteado {0}. Personagem: {1}", sorteio, p.Nome);
-
-            return Ok(msg);
-        }
+        }  
 
         [HttpPost("DisputaEmGrupo")]
         public async Task<IActionResult> DisputaEmGrupoAsync(Disputa d)
         {
             try
             {
-                d.Resultados = new List<string>(); //instancia a lista re resultados
-                
-                //busca na base dos persongaens informados no parametros incluindo Armas e Hbailidadaes
-                List<Personagem> personagens = await _context.Personagens
-                .Include(p => p.Arma)
-                .Include(p => p.PersonagemHabilidades).ThenInclude(ph => ph.Habilidade)
-                .Where(p => d.ListaIdPersonagens.Contains(p.Id)).ToListAsync();
+                d.Resultados = new List<string>();//Instancia a lista de resultados
 
-                //contagem de persoangens vivos na lista obtida do banco de dados 
-                int qtdPersonagensVivos = personagens.FindAll(p => p.PontosVida > 0 ).Count;
+                //Busca na base dos personagens informados no parametro incluindo Armas e Habilidades
+                List<Personagem> personagens = await _context.TB_PERSONAGENS
+                    .Include(p => p.Arma)
+                    .Include(p => p.PersonagemHabilidades).ThenInclude(ph => ph.Habilidade)
+                    .Where(p => d.ListaIdPersonagens.Contains(p.Id)).ToListAsync();
 
-                //enquianto houver mais de um personagem vivo havera disputa
+                //Contagem de personagens vivos na lista obtida do banco de dados
+                int qtdPersonagensVivos = personagens.FindAll(p => p.PontosVida > 0).Count;
+
+                //Enquanto houver mais de um personagem vivo haverá disputa
                 while (qtdPersonagensVivos > 1)
                 {
-                    List<Personagem> atacantes = persoangens.Where(p => p.PontosVida > 0).ToList();
-                    Personagem atacante = atacante[new Random().Next(atacante.Count)];
+                    //Seleciona personagens com pontos vida positivos e depois faz sorteio.
+                    List<Personagem> atacantes = personagens.Where(p => p.PontosVida > 0).ToList();
+                    Personagem atacante = atacantes[new Random().Next(atacantes.Count)];
                     d.AtacanteId = atacante.Id;
 
-                    //selecione personagens com potnos de vida positivos, exceto o atacante escolhido e dpois faz sorteio
-                    List<Personagem> oponente = personagens.Where(p => p.Id != atacante.Id && p.PontosVida > 0).Tolist();
-                    Personagem oponente = oponente[new Random().Next(oponente.Count)];
+                    //Seleciona personagens com pontos vida positivos, exceto o atacante escolhido e depois faz sorteio.
+                    List<Personagem> oponentes = personagens.Where(p => p.Id != atacante.Id && p.PontosVida > 0).ToList();
+                    Personagem oponente = oponentes[new Random().Next(oponentes.Count)];
                     d.OponenteId = oponente.Id;
 
-                    //declare e redefine a cada passagem do while o valor das variaveis que serão usadas
+                    //declara e redefine a cada passagem do while o valor das variáveis que serão usadas.
                     int dano = 0;
                     string ataqueUsado = string.Empty;
                     string resultado = string.Empty;
 
-                    //sorteia entre 0 e 1: 0 é um ataqie com arma e 1 é um ataque com habilidades
+                    //Sorteia entre 0 e 1: 0 é um arque com arma e 1 é um ataque com habilidades
                     bool ataqueUsaArma = (new Random().Next(1) == 0);
 
                     if (ataqueUsaArma && atacante.Arma != null)
                     {
+                        //Programação do ataque com arma caso o atacante possua arma (o != null) do if
+
+                        //Sorteio da Força
                         dano = atacante.Arma.Dano + (new Random().Next(atacante.Forca));
-                        dano = dano - new Random().Next(oponente.Defesa); //sorteio de defesa
+                        dano = dano - new Random().Next(oponente.Defesa); //Sorteio da defesa.
                         ataqueUsado = atacante.Arma.Nome;
 
-                        if(dano > 0)
-                        oponente.PontosVida = oponente.PontosVida - (int)dano;
+                        if (dano > 0)
+                            oponente.PontosVida = oponente.PontosVida - (int)dano;
 
-                        //formata mensagem
+                        //Formata a mensagem
                         resultado =
-                            string.Format("{0} atacou {1} com o dano {3}", atacante.Nome, oponente.Nome, ataqueUsado, dano);
-                        d.Narracao += resultado; //concatena o resultado com as narraçoes existentes
-                        d.Resultados.Add(resultado); //adiciona o resultado atual na lista de resultados
+                            string.Format("{0} atacou {1} usando {2} com o dano {3}.", atacante.Nome, oponente.Nome, ataqueUsado, dano);
+                        d.Narracao = resultado; // Concatena o resultado com as narrações existentes.
+                        d.Resultados.Add(resultado);//Adiciona o resulta atual na lista de resultados.
                     }
-
-                    else if (atacante.PersonagemHabilidades.Count != 0) //verifica se o personagem tem habilidades
+                    else if (atacante.PersonagemHabilidades.Count != 0)//Verifica se o personagem tem habilidades na lista dele
                     {
+                        //Programação do ataque com habilidade
+
+                        //Realiza o sorteio entre as habilidade existentes e na linha seguinte a seleciona.
                         int sorteioHabilidadeId = new Random().Next(atacante.PersonagemHabilidades.Count);
                         Habilidade habilidadeEscolhida = atacante.PersonagemHabilidades[sorteioHabilidadeId].Habilidade;
                         ataqueUsado = habilidadeEscolhida.Nome;
 
+                        //Sorteio da inteligência somada ao dano
                         dano = habilidadeEscolhida.Dano + (new Random().Next(atacante.Inteligencia));
-                        dano = dano - new Random().Next(oponente.Defesa);
+                        dano = dano - new Random().Next(oponente.Defesa);//Sorteio da defesa.
 
                         if (dano > 0)
                             oponente.PontosVida = oponente.PontosVida - (int)dano;
 
                         resultado =
-                            string.Format("{0} atacou {1} usando {2} com o dano de {3}.", atacante.Nome, oponente.Nome, ataqueUsado, dano);
-                        d.Narracao += resultado;
-                        d.Resultados.Add(resultado); 
+                            string.Format("{0} atacou {1} usando {2} com o dano {3}.", atacante.Nome, oponente.Nome, ataqueUsado, dano);
+                        d.Narracao = resultado;
+                        d.Resultados.Add(resultado);
                     }
-                    if (!string.IsNullOrEmpty(ataqueUsado)) 
+
+                    //Atenção: Aqui ficará a Programação da verificação do ataque usado e verificação se existe mais de um personagem vivo
+                    if (!string.IsNullOrEmpty(ataqueUsado))
                     {
                         //Incrementa os dados dos combates
                         atacante.Vitorias++;
                         oponente.Derrotas++;
-                        atacante.Disputas++;           
+                        atacante.Disputas++;
                         oponente.Disputas++;
 
-                        d.Id = 0; //Zera o Id para poder salvar os dados de disputa sem erro de chave.
+                        d.Id = 0;//Zera o Id para poder salvar os dados de disputa sem erro de chave.
                         d.DataDisputa = DateTime.Now;
-                        _context.Disputas.Add(d);         
+                        _context.TB_DISPUTAS.Add(d);
                         await _context.SaveChangesAsync();
-                    } 
-                        qtdPersonagensVivos = personagens.FindAll(p => p.PontosVida > 0).Count; 
-                       
-                        if (qtdPersonagensVivos == 1) //Havendo só um personagem vivo, existe um CAMPEÃO! 
-                        {
-                            string resultadoFinal =
-                                $"{atacante.Nome.ToUpper()} é CAMPEÃO com {atacante.PontosVida} pontos de vida restantes!";
-                            d.Narracao += resultadoFinal; //Concatena o resultado final com as demais narrações.
-                            d.Resultados.Add(resultadoFinal); //Concatena o resultado final com os demais resultados.
-                            
-                            break; //break vai parar o While.
-                        }
                     }
-                }
-                catch (System.Exception ex)
-                {
-                    return BadRequest(ex.Message);
-                }
 
-                
-                //codigo apos o fechamento do while atualizara os pontpos de vida, 
-                //disputas, vitorias e derrotas de todos personagens ao final das batalhas
-                _context.Personagens.UpdateRange(persoangens);
+                    qtdPersonagensVivos = personagens.FindAll(p => p.PontosVida > 0).Count;
+
+                    if (qtdPersonagensVivos == 1)//Havendo só um personagem vivo, existe um CAMPEÃO!
+                    {
+                        string resultadoFinal =
+                            $"{atacante.Nome.ToUpper()} é CAMPEÃO com {atacante.PontosVida} pontos de vida restantes!";
+
+                        d.Narracao += resultadoFinal; //Concatena o resultado final com as demais narrações.
+                        d.Resultados.Add(resultadoFinal); //Contatena o resultado final com os demais resultados.
+
+                        break; //break vai parar o While.
+                    }
+                }//Fim do While
+                //Código após o fechamento do While. Atualizará os pontos de vida, 
+                //disputas, vitórias e derrotas de todos personagens ao final das batalhas
+                _context.TB_PERSONAGENS.UpdateRange(personagens);
                 await _context.SaveChangesAsync();
 
-                return Ok(d); //retorna os dados das disputas
+                return Ok(d); //retorna os dados de disputas
             }
-           
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message + " - " + ex.InnerException);
+            }
+        }
+
         [HttpDelete("ApagarDisputas")]
         public async Task<IActionResult> DeleteAsync()
         {
@@ -252,23 +245,22 @@ namespace RpgApi.Controllers
             {
                 List<Disputa> disputas = await _context.TB_DISPUTAS.ToListAsync();
 
-             _context.TB_DISPUTAS.RemoveRange(disputas);
-                    await _context.SaveChangesAsync();
+                _context.TB_DISPUTAS.RemoveRange(disputas);
+                await _context.SaveChangesAsync();
 
                 return Ok("Disputas apagadas");
             }
             catch (System.Exception ex)
-            { 
-                return BadRequest(ex.Message); 
-            }
+            {                return BadRequest(ex.Message); }
         }
-        
+
         [HttpGet("Listar")]
         public async Task<IActionResult> ListarAsync()
         {
             try
             {
-                List<Disputa> disputas = await _context.TB_DISPUTAS.ToListAsync();
+                List<Disputa> disputas =
+                   await _context.TB_DISPUTAS.ToListAsync();                
 
                 return Ok(disputas);
             }
@@ -277,8 +269,5 @@ namespace RpgApi.Controllers
                 return BadRequest(ex.Message);
             }
         }
-    }            
+    }
 }
-
-       
-

@@ -68,7 +68,7 @@ namespace RpgApi.Controllers
                     .FirstOrDefaultAsync(a => a.PersonagemId == novaArma.PersonagemId);
 
                 if(buscaArma != null)
-                    throw new Exception("O Personagem selecionado já contém uma arma atribuída a ele.")    
+                    throw new Exception("O Personagem selecionado já contém uma arma atribuída a ele.");    
 
                 await _context.TB_ARMAS.AddAsync(novaArma);
                 await _context.SaveChangesAsync();
