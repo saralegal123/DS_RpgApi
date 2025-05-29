@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("ConexaoLocal"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("ConexaoSomee"));
 });
 
 // Add services to the container.
@@ -67,6 +67,7 @@ app.MapGet("/weatherforecast", () =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
 

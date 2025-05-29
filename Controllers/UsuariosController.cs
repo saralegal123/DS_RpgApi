@@ -49,8 +49,9 @@ namespace RpgApi.Controllers
         {
             List<Claim> claims = new List<Claim>
             {
-            new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-            new Claim(ClaimTypes.Name, usuario.Username)
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Name, usuario.Username),
+                new Claim(ClaimTypes.Role, usuario.Perfil)
             };
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8
             .GetBytes(_configuration.GetSection("ConfiguracaoToken:Chave").Value));
@@ -62,7 +63,9 @@ namespace RpgApi.Controllers
                 SigningCredentials = creds
             };
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            
             SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            
             return tokenHandler.WriteToken(token);
         }
 
@@ -110,6 +113,10 @@ namespace RpgApi.Controllers
                     }
                     else
                     {
+                        usuario.DataAcesso = System.DateTime.Now;
+                        _context.TB_USUARIOS.Update(usuario);
+                        await _context.SaveChangesAsync(); 
+
                         usuario.PasswordHash = null;
                         usuario.PasswordSalt = null;
                         usuario.Token = CriarToken(usuario);
